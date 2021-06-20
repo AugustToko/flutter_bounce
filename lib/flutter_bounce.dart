@@ -6,10 +6,14 @@ class Bounce extends StatefulWidget {
   final VoidCallback onPressed;
   final Widget child;
   final Duration duration;
+
   // This will get the data from the pages
   // Makes sure child won't be passed as null
-  Bounce(
-      {required this.child, required this.duration, required this.onPressed});
+  Bounce({
+    required this.child,
+    required this.duration,
+    required this.onPressed,
+  });
 
   @override
   BounceState createState() => BounceState();
@@ -19,9 +23,17 @@ class BounceState extends State<Bounce> with SingleTickerProviderStateMixin {
   late double _scale;
 
   // This controller is responsible for the animation
-  late AnimationController _animate;
+  late AnimationController _animate = AnimationController(
+    vsync: this,
+    // This is an initial controller duration
+    duration: const Duration(milliseconds: 200),
+    lowerBound: 0.0,
+    upperBound: 0.1,
+  )..addListener(() {
+      setState(() {});
+    });
 
-  //Getting the VoidCallack onPressed passed by the user
+  // Getting the VoidCallback onPressed passed by the user
   VoidCallback get onPressed => widget.onPressed;
 
   // This is a user defined duration, which will be responsible for
@@ -29,23 +41,8 @@ class BounceState extends State<Bounce> with SingleTickerProviderStateMixin {
   Duration get userDuration => widget.duration;
 
   @override
-  void initState() {
-    //defining the controller
-    _animate = AnimationController(
-        vsync: this,
-        duration: const Duration(
-            milliseconds: 200), //This is an inital controller duration
-        lowerBound: 0.0,
-        upperBound: 0.1)
-      ..addListener(() {
-        setState(() {});
-      }); // Can do something in the listener, but not required
-    super.initState();
-  }
-
-  @override
   void dispose() {
-    // To dispose the contorller when not required
+    // To dispose the controller when not required
     _animate.dispose();
     super.dispose();
   }
@@ -61,18 +58,18 @@ class BounceState extends State<Bounce> with SingleTickerProviderStateMixin {
         ));
   }
 
-  //This is where the animation works out for us
+  // This is where the animation works out for us
   // Both the animation happens in the same method,
   // but in a duration of time, and our callback is called here as well
   void _onTap() {
-    //Firing the animation right away
+    // Firing the animation right away
     _animate.forward();
 
-    //Now reversing the animation after the user defined duration
+    // Now reversing the animation after the user defined duration
     Future.delayed(userDuration, () {
       _animate.reverse();
 
-      //Calling the callback
+      // Calling the callback
       onPressed();
     });
   }
